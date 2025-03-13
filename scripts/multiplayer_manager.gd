@@ -1,23 +1,23 @@
 extends Node
 
-@export var player_scene: PackedScene  # ← This must be above all functions!
+@export var player_scene: PackedScene  # Reference to the player scene
+
+var is_host := false  # Set to false for client
 
 func _ready():
 	var peer = ENetMultiplayerPeer.new()
-	var is_host := true  # Toggle between true (host) and false (client)
 
 	if is_host:
-		peer.create_server(12345, 2)
+		peer.create_server(12345, 2)  # Start the server
 		print("Server started on port 12345")
 	else:
-		peer.create_client("127.0.0.1", 12345)
+		peer.create_client("127.0.0.1", 12345)  # Connect to server (localhost)
 		print("Client connecting to localhost...")
 
 	multiplayer.multiplayer_peer = peer
 	multiplayer.peer_connected.connect(_on_peer_connected)
 
-	# Wait until peer ID is ready before spawning
-	call_deferred("_spawn_self")
+	call_deferred("_spawn_self")  # Spawn the player after network setup
 
 func _spawn_self():
 	var id = multiplayer.get_unique_id()
@@ -28,19 +28,15 @@ func _spawn_self():
 		return
 
 	var player = player_scene.instantiate()
-	player.name = str(id)
-	player.set_multiplayer_authority(id)
-	player.position = Vector2(-172 + (id * 10), 31)
+	player.position = Vector2(-172 + (id * 10), 31)  # Position based on ID
 	add_child(player)
 
 func _on_peer_connected(id: int) -> void:
 	print("Peer connected:", id)
 
 	if id == multiplayer.get_unique_id():
-		return  # Already spawned yourself
+		return  # Skip spawning the local player again
 
 	var player = player_scene.instantiate()
-	player.name = str(id)
-	player.set_multiplayer_authority(id)
-	player.position = Vector2(-272 + (id * 10), 31)
+	player.position = Vector2(-272 + (id * 10), 31)  # Spawn remote player at different position
 	add_child(player)
