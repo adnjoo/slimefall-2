@@ -1,6 +1,6 @@
 extends Node2D
 
-@export var level_1: String = "res://levels/level_1.tscn"
+@export var multiplayer_game: String = "res://levels/multiplayer_game.tscn"
 @export var lives_ui = "res://scenes/lives_ui.tscn"
 
 @onready var start_button = $StartMenuContainer/StartButton  # Adjusted path to the StartButton
@@ -27,7 +27,7 @@ func start_game():
 	LivesUI.mobile_controls.visible = true
 	
 	Engine.time_scale = 1.0
-	get_tree().change_scene_to_file(level_1)
+	get_tree().change_scene_to_file(multiplayer_game)
 
 # Start Button Pressed Logic
 func _on_start_button_pressed():

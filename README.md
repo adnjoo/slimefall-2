@@ -1,4 +1,4 @@
-# Slimefall - Brackeys
+# Slimefall 2 - Hang out thing
 
 ![Game Icon](assets/misc/icon.png)
 
