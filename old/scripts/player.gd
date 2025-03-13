@@ -7,25 +7,32 @@ const JUMP_VELOCITY = -350.0
 @onready var animated_sprite = $AnimatedSprite2D
 
 func _ready():
-	set_physics_process(true)
+	# Only the player with authority can control the player (local player or host)
+	if is_multiplayer_authority():
+		set_physics_process(true)  # Enable movement controls for the player with authority
+	else:
+		set_physics_process(false)  # Disable movement for remote players
 
 func _physics_process(delta: float) -> void:
-	handle_input(delta)
+	if is_multiplayer_authority():
+		handle_input(delta)
+		rpc("sync_position", global_position)  # Sync position across the network
 	move_and_slide()
 
-	# Sync position to all players
-	rpc("sync_position", global_position)
-
 func handle_input(delta: float) -> void:
+	# Gravity
 	if not is_on_floor():
 		velocity.y += GRAVITY * delta
+
+	# Jump
 	if Input.is_action_just_pressed("jump") and is_on_floor():
 		velocity.y = JUMP_VELOCITY
 
+	# Movement
 	var direction = Input.get_axis("move_left", "move_right")
 	velocity.x = direction * SPEED
 
-	# Play animations based on input
+	# Animations
 	if is_on_floor():
 		if direction == 0:
 			animated_sprite.play("idle")

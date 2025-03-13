@@ -19,7 +19,10 @@ func _ready():
 
 	call_deferred("_spawn_self")  # Spawn the player after network setup
 
+# Ensure player node is instantiated and added before RPC
 func _spawn_self():
+	await get_tree().create_timer(1).timeout  # Wait 1 second before spawning
+
 	var id = multiplayer.get_unique_id()
 	print("Spawning local player with ID:", id)
 
@@ -29,6 +32,7 @@ func _spawn_self():
 
 	var player = player_scene.instantiate()
 	player.position = Vector2(-172 + (id * 10), 31)  # Position based on ID
+	player.set_multiplayer_authority(id)  # Set authority for the local player
 	add_child(player)
 
 func _on_peer_connected(id: int) -> void:
@@ -37,6 +41,10 @@ func _on_peer_connected(id: int) -> void:
 	if id == multiplayer.get_unique_id():
 		return  # Skip spawning the local player again
 
+	# Wait 1 second before spawning remote player
+	await get_tree().create_timer(1).timeout
+
 	var player = player_scene.instantiate()
 	player.position = Vector2(-272 + (id * 10), 31)  # Spawn remote player at different position
+	player.set_multiplayer_authority(id)  # Set authority for the remote player
 	add_child(player)
