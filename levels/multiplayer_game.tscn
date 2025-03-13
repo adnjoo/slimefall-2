@@ -1,5 +1,6 @@
-[gd_scene load_steps=11 format=3 uid="uid://ms0auj38b20w"]
+[gd_scene load_steps=12 format=3 uid="uid://ms0auj38b20w"]
 
+[ext_resource type="Script" path="res://scripts/multiplayer_manager.gd" id="1_87eyx"]
 [ext_resource type="PackedScene" uid="uid://cth1t5i7tysuv" path="res://scenes/player.tscn" id="3_y63kr"]
 [ext_resource type="Texture2D" uid="uid://bxjvjhrkw77d4" path="res://assets/sprites/world_tileset.png" id="4_4e8as"]
 [ext_resource type="PackedScene" uid="uid://hy3nbdnrxqj4" path="res://scenes/killzone.tscn" id="5_02x7y"]
@@ -216,6 +217,7 @@ _data = {
 }
 
 [node name="multiplayer_game" type="Node2D"]
+script = ExtResource("1_87eyx")
 
 [node name="Player" parent="." groups=["Player"] instance=ExtResource("3_y63kr")]
 position = Vector2(-272, 21)
