@@ -37,30 +37,3 @@ func save_high_score(current_score: int):
 		var file = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 		file.store_line(str(high_score))  # Save the high score
 		file.close()
-
-func handle_game_end(is_win: bool):
-	"""
-	Handles the game-over or game-win logic.
-
-	Args:
-		is_win (bool): If true, handles the win scenario; otherwise, handles game over.
-	"""
-	LivesUI._set_main_music(false)  # Stop music
-	
-	if is_win:
-		LivesUI.game_win.play()
-		GameManager.save_high_score(GameManager.score)
-		LivesUI.win_label2.text = "Your score is: " + str(GameManager.score)
-		LivesUI.vbox_container.visible = true
-		await get_tree().create_timer(3).timeout  # Wait before switching scene
-	else:
-		LivesUI.sad_sound.play()
-		LivesUI.visible = false
-
-	collected_coins = {}  # Reset collected coins
-	LivesUI.reset_points()  # Reset points
-
-	get_tree().change_scene_to_file(start_menu)
-	
-	await get_tree().create_timer(1).timeout
-	LivesUI._set_main_music(true)

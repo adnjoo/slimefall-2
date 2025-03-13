@@ -42,8 +42,6 @@ func lose_life():
 	if current_lives > 0:
 		current_lives -= 1
 		update_hearts()
-		if current_lives == 0:
-			game_over()
 
 func add_point():
 	GameManager.score += 1
@@ -51,10 +49,6 @@ func add_point():
 	
 func update_score_ui():
 	score_label.text = str(GameManager.score)
-
-func game_over():
-	print("Game Over!") # Replace with your game over logic
-	GameManager.handle_game_end(false) # Use shared function for game over
 
 func _on_sad_sound_finished() -> void:
 	_set_main_music(true)  # Restart music after sad sound finishes
