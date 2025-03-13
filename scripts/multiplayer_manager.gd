@@ -30,7 +30,7 @@ func _spawn_self():
 	var player = player_scene.instantiate()
 	player.name = str(id)
 	player.set_multiplayer_authority(id)
-	player.position = Vector2(-272 + (id * 10), 31)
+	player.position = Vector2(-172 + (id * 10), 31)
 	add_child(player)
 
 func _on_peer_connected(id: int) -> void:

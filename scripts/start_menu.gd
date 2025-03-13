@@ -13,7 +13,6 @@ extends Node2D
 
 func _ready():
 	LivesUI.visible = false
-	hi_score_label.text = "Your Hi Score: " + str(GameManager.high_score)
 	
 func toggle_settings_menu():
 	settings_menu.visible = not settings_menu.visible
@@ -21,8 +20,6 @@ func toggle_settings_menu():
 
 # Separate the game start logic into a new function
 func start_game():
-	LivesUI.vbox_container.visible = false
-	LivesUI.reset_lives()
 	LivesUI.visible = true
 	LivesUI.mobile_controls.visible = true
 	
@@ -32,10 +29,6 @@ func start_game():
 # Start Button Pressed Logic
 func _on_start_button_pressed():
 	start_game()
-
-func _on_about_link_pressed() -> void:
-	var url = "https://www.heybam.boo"  # Replace with the URL you want to open
-	OS.shell_open(url)
 
 # Settings
 func _on_settings_button_pressed() -> void:
@@ -51,9 +44,6 @@ func _on_mute_back_button_pressed() -> void:
 		LivesUI._set_main_music(false)
 	else:
 		LivesUI._set_main_music(true)
-
-#func _on_mobile_controls_button_pressed() -> void:
-	#LivesUI._toggle_mobile_controls()
 
 func _on_hi_scores_button_pressed() -> void:
 	print(GameManager.high_score)
