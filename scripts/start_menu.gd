@@ -6,10 +6,7 @@ extends Node2D
 @onready var start_button = $StartMenuContainer/StartButton  # Adjusted path to the StartButton
 @onready var settings_button = $StartMenuContainer/SettingsButton  # Adjusted path to the StartButton
 @onready var start_menu_panel = $StartMenuContainer
-@onready var about_link = $AboutLink  # Adjusted path to the StartButton
 @onready var settings_menu = $SettingsMenu
-
-@onready var hi_score_label = $HiScoreLabel
 
 func _ready():
 	LivesUI.visible = false
