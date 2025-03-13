@@ -1,12 +1,3 @@
 # Godot 4+ specific ignores
 .godot/
 /android/
-*.tmp
-
-# Misc.
-.DS_Store
-*.zip
-
-compiled_game/*
-
-*.jks
