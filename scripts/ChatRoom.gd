@@ -15,6 +15,7 @@ func _ready():
 	host_button.pressed.connect(_host_game)
 	join_button.pressed.connect(_join_game)
 
+	# Connect GD-Sync signals
 	GDSync.connected.connect(_on_connected)
 	GDSync.connection_failed.connect(_on_connection_failed)
 	GDSync.disconnected.connect(_on_disconnected)
@@ -22,6 +23,10 @@ func _ready():
 	GDSync.lobby_creation_failed.connect(_on_lobby_creation_failed)
 	GDSync.lobby_joined.connect(_on_lobby_joined)
 	GDSync.lobby_join_failed.connect(_on_lobby_join_failed)
+	GDSync.client_joined.connect(_on_client_joined)
+
+	# Expose RPC function so other clients can call it
+	GDSync.expose_func(receive_message)
 
 func _on_send_pressed():
 	_send_message(chat_input.text)
@@ -33,6 +38,7 @@ func _send_message(msg: String):
 	if msg.strip_edges() == "":
 		return
 
+	# Show locally
 	chat_log.push_color(Color.LIGHT_GREEN)
 	chat_log.append_text("You: ")
 	chat_log.pop()
@@ -40,6 +46,7 @@ func _send_message(msg: String):
 	chat_log.scroll_to_line(chat_log.get_line_count())
 	chat_input.clear()
 
+	# Send to other peers
 	rpc("receive_message", msg)
 
 @rpc("any_peer")
@@ -60,16 +67,15 @@ func _host_game():
 		chat_log.append_text("Enter a lobby name to host.\n")
 		return
 
-	# Step 1: Start the GD-Sync multiplayer system
 	GDSync.connected.connect(func ():
 		GDSync.create_lobby(lobby_name, "", true, 10, {})
 		chat_log.append_text("Creating lobby: %s...\n" % lobby_name)
+
+		await get_tree().create_timer(0.1).timeout
+		GDSync.join_lobby(lobby_name, "")
 	)
 
-	GDSync.connection_failed.connect(_on_connection_failed)
-
 	GDSync.start_multiplayer()
-
 
 func _join_game():
 	is_host = false
@@ -83,21 +89,16 @@ func _join_game():
 		chat_log.append_text("Joining lobby: %s...\n" % lobby_name)
 	)
 
-	GDSync.connection_failed.connect(_on_connection_failed)
-
 	GDSync.start_multiplayer()
-
 
 func _on_lobby_created(lobby_name: String):
 	chat_log.append_text("Lobby '%s' created successfully.\n" % lobby_name)
-	GDSync.start_multiplayer()
 
 func _on_lobby_creation_failed(lobby_name: String, error: int):
 	chat_log.append_text("Failed to create lobby '%s'. Error code: %d\n" % [lobby_name, error])
 
 func _on_lobby_joined(lobby_name: String):
 	chat_log.append_text("Joined lobby '%s' successfully.\n" % lobby_name)
-	GDSync.start_multiplayer()
 
 func _on_lobby_join_failed(lobby_name: String, error: int):
 	chat_log.append_text("Failed to join lobby '%s'. Error code: %d\n" % [lobby_name, error])
@@ -116,3 +117,7 @@ func _on_connection_failed(error: int):
 
 func _on_disconnected():
 	chat_log.append_text("Disconnected from GD-Sync session.\n")
+
+func _on_client_joined(client_id: int):
+	print("Client %d joined the lobby!" % client_id)
+	chat_log.append_text("Client %d joined the lobby.\n" % client_id)
