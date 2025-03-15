@@ -286,9 +286,9 @@ tile_map_data = PackedByteArray("AAAAAB0AAAAAAAEAAAAAAB4AAAAAAAEAAAABAB0AAAAAAAE
 tile_set = SubResource("TileSet_f2wr7")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
-layout_mode = 0
-offset_right = 500.0
-offset_bottom = 335.0
+offset_left = 400.0
+offset_right = 900.0
+offset_bottom = 339.0
 
 [node name="Button" type="RichTextLabel" parent="VBoxContainer"]
 custom_minimum_size = Vector2(0, 100)
@@ -310,8 +310,8 @@ layout_mode = 2
 text = "Send"
 
 [node name="HBoxContainer" type="HBoxContainer" parent="."]
-layout_mode = 0
-offset_right = 40.0
+offset_left = 400.0
+offset_right = 690.0
 offset_bottom = 40.0
 
 [node name="HostButton" type="Button" parent="HBoxContainer"]

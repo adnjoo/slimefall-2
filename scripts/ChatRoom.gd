@@ -7,6 +7,9 @@ extends Control
 @onready var join_button = $HBoxContainer/JoinButton
 @onready var ip_input = $HBoxContainer/IPInput  # Used as lobby name input
 
+@onready var PlayerScene = preload("res://scenes/Player.tscn")
+@onready var mid = $Mid
+
 var is_host = false
 
 func _ready():
@@ -98,6 +101,10 @@ func _on_lobby_creation_failed(lobby_name: String, error: int):
 
 func _on_lobby_joined(lobby_name: String):
 	add_message("System", "Joined lobby '%s' successfully." % lobby_name, Color.GREEN)
+
+	var player = PlayerScene.instantiate()
+	player.position = Vector2(100, 100)  # Adjust spawn position as needed
+	mid.add_child(player)
 
 func _on_lobby_join_failed(lobby_name: String, error: int):
 	add_message("System", "Failed to join lobby '%s'. Error: %d" % [lobby_name, error], Color.RED)
