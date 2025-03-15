@@ -5,11 +5,11 @@ extends Control
 @onready var send_button = $VBoxContainer/HBoxContainer/SendButton
 @onready var host_button = $HBoxContainer/HostButton
 @onready var join_button = $HBoxContainer/JoinButton
-@onready var ip_input = $HBoxContainer/IPInput  # Used as lobby name input
-
-@onready var PlayerScene = preload("res://scenes/Player.tscn")
+@onready var ip_input = $HBoxContainer/IPInput
 @onready var mid = $Mid
 
+var PlayerScene = preload("res://scenes/Player.tscn")
+var self_player: Node = null
 var is_host = false
 
 func _ready():
@@ -18,7 +18,6 @@ func _ready():
 	host_button.pressed.connect(_host_game)
 	join_button.pressed.connect(_join_game)
 
-	# GD-Sync signals
 	GDSync.connected.connect(_on_connected)
 	GDSync.connection_failed.connect(_on_connection_failed)
 	GDSync.disconnected.connect(_on_disconnected)
@@ -28,14 +27,37 @@ func _ready():
 	GDSync.lobby_join_failed.connect(_on_lobby_join_failed)
 	GDSync.client_joined.connect(_on_client_joined)
 
-	# Expose chat function
-	GDSync.expose_func(receive_message)
+	GDSync.expose_func(self.receive_message)
+	GDSync.expose_func(self.update_position)
 
 func _on_send_pressed():
 	_send_message(chat_input.text)
 
-func _on_text_submitted(new_text):
+func _on_text_submitted(new_text: String):
 	_send_message(new_text)
+
+func _process(delta):
+	if self_player:
+		GDSync.call_func(self.update_position, [GDSync.get_client_id(), self_player.global_position])
+
+func update_position(client_id: int, pos: Vector2):
+	var player_node := mid.get_node_or_null("Player_%d" % client_id)
+	if player_node:
+		player_node.global_position = pos
+
+func _spawn_player(client_id: int):
+	var player = PlayerScene.instantiate()
+	player.player_id = client_id
+	player.name = "Player_%d" % client_id
+	player.position = Vector2(100 + randi() % 300, 100)
+	mid.add_child(player)
+
+	GDSync.set_gdsync_owner(player, client_id)
+
+	if client_id == GDSync.get_client_id():
+		self_player = player
+
+# --- Chat ---
 
 func _send_message(msg: String):
 	if msg.strip_edges() == "":
@@ -43,13 +65,11 @@ func _send_message(msg: String):
 
 	add_message("You", msg, Color.CYAN)
 	chat_input.clear()
-
-	# Send to others using GD-Sync remote call
-	GDSync.call_func(receive_message, [msg])
+	GDSync.call_func(self.receive_message, [msg])
 
 func receive_message(msg: String) -> void:
 	var sender_id = GDSync.get_sender_id()
-	var name = "Client %s" % sender_id if !GDSync.is_host() else "Host"
+	var name = "Client %d" % sender_id if !GDSync.is_host() else "Host"
 	add_message(name, msg, Color.YELLOW)
 
 func add_message(name: String, msg: String, color: Color):
@@ -58,6 +78,8 @@ func add_message(name: String, msg: String, color: Color):
 	chat_log.pop()
 	chat_log.append_text(msg + "\n")
 	chat_log.scroll_to_line(chat_log.get_line_count())
+
+# --- Lobby/Connection ---
 
 func _host_game():
 	is_host = true
@@ -102,10 +124,6 @@ func _on_lobby_creation_failed(lobby_name: String, error: int):
 func _on_lobby_joined(lobby_name: String):
 	add_message("System", "Joined lobby '%s' successfully." % lobby_name, Color.GREEN)
 
-	var player = PlayerScene.instantiate()
-	player.position = Vector2(100, 100)  # Adjust spawn position as needed
-	mid.add_child(player)
-
 func _on_lobby_join_failed(lobby_name: String, error: int):
 	add_message("System", "Failed to join lobby '%s'. Error: %d" % [lobby_name, error], Color.RED)
 
@@ -119,5 +137,5 @@ func _on_connection_failed(error: int):
 			add_message("System", "Unknown connection error: %d" % error, Color.RED)
 
 func _on_client_joined(client_id: int):
-	print("Client %d joined the lobby." % client_id)
 	add_message("System", "Client %d joined the lobby." % client_id, Color.LIGHT_BLUE)
+	_spawn_player(client_id)

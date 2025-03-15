@@ -1,9 +1,13 @@
 extends CharacterBody2D
 
-
 const SPEED = 300.0
 const JUMP_VELOCITY = -400.0
+@export var player_id: int = -1  # Assigned by ChatRoom
 
+func _ready():
+	# Disable control if this is not the local player
+	if player_id != GDSync.get_client_id():
+		set_physics_process(false)
 
 func _physics_process(delta: float) -> void:
 	# Add the gravity.
