@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://dgsxs3mqt44xl"]
+[gd_scene load_steps=8 format=3 uid="uid://dgsxs3mqt44xl"]
 
 [ext_resource type="Texture2D" uid="uid://dnotpk670rr2m" path="res://assets/sprites/knight.png" id="1_vxsak"]
 
@@ -38,6 +38,9 @@ animations = [{
 "speed": 5.0
 }]
 
+[sub_resource type="CircleShape2D" id="CircleShape2D_kdc6t"]
+radius = 5.0
+
 [node name="Player" type="CharacterBody2D"]
 texture_filter = 1
 
@@ -45,3 +48,9 @@ texture_filter = 1
 sprite_frames = SubResource("SpriteFrames_kduyj")
 autoplay = "default"
 frame_progress = 0.839743
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, 7)
+shape = SubResource("CircleShape2D_kdc6t")
+
+[node name="Camera2D" type="Camera2D" parent="."]

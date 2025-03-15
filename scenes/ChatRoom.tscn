@@ -326,7 +326,3 @@ text = "Join"
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 placeholder_text = "Enter IP to join"
-
-[node name="Camera2D" type="Camera2D" parent="."]
-position = Vector2(479, 269)
-zoom = Vector2(2, 2)
