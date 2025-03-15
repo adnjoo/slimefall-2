@@ -1,0 +1,47 @@
+[gd_scene load_steps=7 format=3 uid="uid://dgsxs3mqt44xl"]
+
+[ext_resource type="Texture2D" uid="uid://dnotpk670rr2m" path="res://assets/sprites/knight.png" id="1_vxsak"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_orhq1"]
+atlas = ExtResource("1_vxsak")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tc7m0"]
+atlas = ExtResource("1_vxsak")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rrqdv"]
+atlas = ExtResource("1_vxsak")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_datq5"]
+atlas = ExtResource("1_vxsak")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_kduyj"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_orhq1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_tc7m0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rrqdv")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_datq5")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
+[node name="Player" type="CharacterBody2D"]
+texture_filter = 1
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_kduyj")
+autoplay = "default"
+frame_progress = 0.839743
