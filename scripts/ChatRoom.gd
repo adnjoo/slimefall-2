@@ -5,9 +5,8 @@ extends Control
 @onready var send_button = $VBoxContainer/HBoxContainer/SendButton
 @onready var host_button = $HBoxContainer/HostButton
 @onready var join_button = $HBoxContainer/JoinButton
-@onready var ip_input = $HBoxContainer/IPInput
+@onready var ip_input = $HBoxContainer/IPInput  # Used as lobby name input
 
-const PORT = 9999
 var is_host = false
 
 func _ready():
@@ -16,11 +15,18 @@ func _ready():
 	host_button.pressed.connect(_host_game)
 	join_button.pressed.connect(_join_game)
 
-	var mp = get_tree().get_multiplayer()
-	mp.peer_connected.connect(_on_peer_connected)
-	mp.peer_disconnected.connect(_on_peer_disconnected)
-	mp.connected_to_server.connect(_on_connected_to_server)
-	mp.connection_failed.connect(_on_connection_failed)
+	# GD-Sync signals
+	GDSync.connected.connect(_on_connected)
+	GDSync.connection_failed.connect(_on_connection_failed)
+	GDSync.disconnected.connect(_on_disconnected)
+	GDSync.lobby_created.connect(_on_lobby_created)
+	GDSync.lobby_creation_failed.connect(_on_lobby_creation_failed)
+	GDSync.lobby_joined.connect(_on_lobby_joined)
+	GDSync.lobby_join_failed.connect(_on_lobby_join_failed)
+	GDSync.client_joined.connect(_on_client_joined)
+
+	# Expose chat function
+	GDSync.expose_func(receive_message)
 
 func _on_send_pressed():
 	_send_message(chat_input.text)
@@ -32,54 +38,79 @@ func _send_message(msg: String):
 	if msg.strip_edges() == "":
 		return
 
-	# Show locally
-	chat_log.push_color(Color.LIGHT_GREEN)
-	chat_log.append_text("You: ")
-	chat_log.pop()
-	chat_log.append_text(msg + "\n")
-	chat_log.scroll_to_line(chat_log.get_line_count())
+	add_message("You", msg, Color.CYAN)
 	chat_input.clear()
 
-	# Send to others via RPC
-	rpc("receive_message", msg)
+	# Send to others using GD-Sync remote call
+	GDSync.call_func(receive_message, [msg])
 
-@rpc("any_peer")
-func receive_message(msg: String):
-	var peer_id = get_tree().get_multiplayer().get_remote_sender_id()
-	var name = "Client %s" % peer_id if is_host and peer_id != 1 else "Host"
+func receive_message(msg: String) -> void:
+	var sender_id = GDSync.get_sender_id()
+	var name = "Client %s" % sender_id if !GDSync.is_host() else "Host"
+	add_message(name, msg, Color.YELLOW)
 
-	chat_log.push_color(Color.SKY_BLUE)
+func add_message(name: String, msg: String, color: Color):
+	chat_log.push_color(color)
 	chat_log.append_text("%s: " % name)
 	chat_log.pop()
 	chat_log.append_text(msg + "\n")
 	chat_log.scroll_to_line(chat_log.get_line_count())
 
 func _host_game():
-	var peer = ENetMultiplayerPeer.new()
-	peer.create_server(PORT)
-	get_tree().get_multiplayer().multiplayer_peer = peer
 	is_host = true
-	chat_log.append_text("Hosting on port %d...\n" % PORT)
-
-func _join_game():
-	var ip = ip_input.text.strip_edges()
-	if ip == "":
-		chat_log.append_text("Enter a valid IP!\n")
+	var lobby_name = ip_input.text.strip_edges()
+	if lobby_name == "":
+		add_message("System", "Enter a lobby name to host.", Color.RED)
 		return
 
-	var peer = ENetMultiplayerPeer.new()
-	peer.create_client(ip, PORT)
-	get_tree().get_multiplayer().multiplayer_peer = peer
-	chat_log.append_text("Connecting to %s...\n" % ip)
+	GDSync.connected.connect(func ():
+		GDSync.create_lobby(lobby_name, "", true, 10, {})
+		await get_tree().create_timer(0.1).timeout
+		GDSync.join_lobby(lobby_name, "")
+	)
 
-func _on_peer_connected(id):
-	chat_log.append_text("Peer %d connected.\n" % id)
+	GDSync.start_multiplayer()
 
-func _on_peer_disconnected(id):
-	chat_log.append_text("Peer %d disconnected.\n" % id)
+func _join_game():
+	is_host = false
+	var lobby_name = ip_input.text.strip_edges()
+	if lobby_name == "":
+		add_message("System", "Enter a lobby name to join.", Color.RED)
+		return
 
-func _on_connected_to_server():
-	chat_log.append_text("Connected to server!\n")
+	GDSync.connected.connect(func ():
+		GDSync.join_lobby(lobby_name, "")
+	)
 
-func _on_connection_failed():
-	chat_log.append_text("Connection failed.\n")
+	GDSync.start_multiplayer()
+
+func _on_connected():
+	add_message("System", "Connected via GD-Sync.", Color.GRAY)
+
+func _on_disconnected():
+	add_message("System", "Disconnected from GD-Sync.", Color.GRAY)
+
+func _on_lobby_created(lobby_name: String):
+	add_message("System", "Lobby '%s' created successfully." % lobby_name, Color.GREEN)
+
+func _on_lobby_creation_failed(lobby_name: String, error: int):
+	add_message("System", "Failed to create lobby '%s'. Error: %d" % [lobby_name, error], Color.RED)
+
+func _on_lobby_joined(lobby_name: String):
+	add_message("System", "Joined lobby '%s' successfully." % lobby_name, Color.GREEN)
+
+func _on_lobby_join_failed(lobby_name: String, error: int):
+	add_message("System", "Failed to join lobby '%s'. Error: %d" % [lobby_name, error], Color.RED)
+
+func _on_connection_failed(error: int):
+	match error:
+		ENUMS.CONNECTION_FAILED.INVALID_PUBLIC_KEY:
+			add_message("System", "Invalid API key.", Color.RED)
+		ENUMS.CONNECTION_FAILED.TIMEOUT:
+			add_message("System", "Connection timed out.", Color.RED)
+		_:
+			add_message("System", "Unknown connection error: %d" % error, Color.RED)
+
+func _on_client_joined(client_id: int):
+	print("Client %d joined the lobby." % client_id)
+	add_message("System", "Client %d joined the lobby." % client_id, Color.LIGHT_BLUE)
