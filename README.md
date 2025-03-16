@@ -47,7 +47,7 @@ public_key="your_public_key"
 private_key="your_private_key"
 ```
 
-You can get these keys by signing up at [gdsync.dev](https://gdsync.dev/)
+You can get these keys by signing up at [gd-sync](https://www.gd-sync.com/)
 
 ---
 
