@@ -11,8 +11,8 @@ config_version=5
 [GD-Sync]
 
 version="0.7"
-publicKey=""
-privateKey=""
+publicKey="2ff5cbd14c17ad78"
+; privateKey removed from version control
 
 [application]
 
