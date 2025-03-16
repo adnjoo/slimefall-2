@@ -12,7 +12,6 @@ config_version=5
 
 version="0.7"
 publicKey="2ff5cbd14c17ad78"
-; privateKey removed from version control
 
 [application]
 
