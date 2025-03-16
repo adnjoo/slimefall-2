@@ -29,6 +29,7 @@ func _ready():
 
 	GDSync.expose_func(self.receive_message)
 	GDSync.expose_func(self.update_position)
+	GDSync.expose_func(self.update_animation)
 
 func _on_send_pressed():
 	_send_message(chat_input.text)
@@ -44,6 +45,13 @@ func update_position(client_id: int, pos: Vector2):
 	var player_node := mid.get_node_or_null("Player_%d" % client_id)
 	if player_node:
 		player_node.global_position = pos
+
+func update_animation(client_id: int, direction: float, anim_name: String):
+	var player_node := mid.get_node_or_null("Player_%d" % client_id)
+	if player_node:
+		player_node.get_node("AnimatedSprite2D").scale.x = direction
+		if not player_node.get_node("AnimatedSprite2D").is_playing() or player_node.get_node("AnimatedSprite2D").animation != anim_name:
+			player_node.get_node("AnimatedSprite2D").play(anim_name)
 
 func _spawn_player(client_id: int):
 	var player = PlayerScene.instantiate()
