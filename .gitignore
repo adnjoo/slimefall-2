@@ -1,4 +1,7 @@
 # Godot 4+ specific ignores
 .godot/
 /android/
+gd_sync_secrets.cfg
+
+# MacOS
 .DS_Store

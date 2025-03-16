@@ -186,6 +186,17 @@ func _init():
 	_node_tracker = preload("res://addons/GD-Sync/Scripts/NodeTracker.gd").new()
 	_local_server = preload("res://addons/GD-Sync/Scripts/LocalServer.gd").new()
 	_steam = preload("res://addons/GD-Sync/Scripts/Steam.gd").new()
+	
+	# Load private key from secret file if it exists
+	var config = ConfigFile.new()
+	var err = config.load("res://gd_sync_secrets.cfg")
+	if err == OK:
+		var private_key = config.get_value("GD-Sync-Secrets", "privateKey", "")
+		if private_key != "":
+			ProjectSettings.set_setting("GD-Sync/privateKey", private_key)
+			print("✅ Loaded private key from gd_sync_secrets.cfg into ProjectSettings.")
+	else:
+		print("⚠️ gd_sync_secrets.cfg not found or failed to load.")
 
 func _ready():
 	add_child(_request_processor)
