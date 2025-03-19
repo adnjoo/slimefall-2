@@ -1,6 +1,6 @@
 [gd_scene load_steps=7 format=4 uid="uid://d3bjv071ybbpq"]
 
-[ext_resource type="Script" path="res://scripts/ChatRoom.gd" id="1_rd41d"]
+[ext_resource type="Script" uid="uid://d0t1ymds8y2el" path="res://scripts/ChatRoom.gd" id="1_rd41d"]
 [ext_resource type="Texture2D" uid="uid://bxjvjhrkw77d4" path="res://assets/sprites/world_tileset.png" id="2_13okp"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_tuute"]
