@@ -21,7 +21,7 @@ You can run, jump, type random stuff, and watch slimes do the same.
 ### Requirements:
 - [Godot 4.x](https://godotengine.org/download)
 - GDSync addon (included)
-- A GDSync API key (`gd_sync_secrets.cfg` with `public_key` and `private_key`)
+- A GDSync API key (`public_key` and `private_key`)
 
 ### Running:
 
@@ -38,13 +38,6 @@ Then hit **Play** and:
 ---
 
 ## 🔐 Setup GDSync Keys
-
-You need a `gd_sync_secrets.cfg` file in the root:
-
-```ini
-[gd_sync]
-private_key="your_private_key"
-```
 
 You can get these keys by signing up at [gd-sync](https://www.gd-sync.com/)
 
