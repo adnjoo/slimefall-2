@@ -43,7 +43,6 @@ You need a `gd_sync_secrets.cfg` file in the root:
 
 ```ini
 [gd_sync]
-public_key="your_public_key"
 private_key="your_private_key"
 ```
 
